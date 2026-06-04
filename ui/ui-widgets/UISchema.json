@@ -2,7 +2,7 @@
   "sections": [
     {
       "section-id": "main-content",
-      "section-title": "",
+      "section-title": "Personal Information",
       "section-editable": false,
       "panels": [
         {
@@ -20,7 +20,7 @@
                   "widget-id": "name",
                   "widget-data-path": "person.name",
                   "widget-data-default": "Sarah Elizabeth",
-                  "widget-required": false,
+                  "widget-required": true,
                   "widget-readonly": true
                 },
                 {
@@ -30,18 +30,30 @@
                   "widget-id": "id",
                   "widget-data-path": "person.id",
                   "widget-data-default": "1234567890",
-                  "widget-required": false,
                   "widget-readonly": true
                 },
                 {
-                  "widget": "text",
+                  "widget": "date",
                   "widget-type": "input",
                   "widget-label": "DOB",
                   "widget-id": "dob",
                   "widget-data-path": "person.dob",
-                  "widget-data-default": "25 Jan 1980",
-                  "widget-required": false,
-                  "widget-readonly": true
+                  "widget-data-default": "1980-01-25",
+                  "widget-required": true,
+                  "widget-readonly": true,
+                  "widget-data-format": {
+                    "dateFormat": "DD/MM/YYYY",
+                    "dateConstraint": "past-only"
+                  },
+                  "widget-data-options": {
+                    "action": "disable",
+                    "maxDate": "today",
+                    "minDate": "1900-01-01",
+                    "condition": {
+                      "field": "person.estimated_age",
+                      "operator": "notEmpty"
+                    }
+                  }
                 }
               ]
             },
@@ -56,7 +68,7 @@
                   "widget-id": "phone",
                   "widget-data-path": "person.phone",
                   "widget-data-default": "12345 67890",
-                  "widget-required": false,
+                  "widget-required": true,
                   "widget-readonly": true
                 },
                 {
@@ -66,8 +78,23 @@
                   "widget-id": "email",
                   "widget-data-path": "person.email",
                   "widget-data-default": "abcd@gmail.com",
-                  "widget-required": false,
                   "widget-readonly": true
+                },
+                {
+                  "widget": "number",
+                  "widget-type": "input",
+                  "widget-label": "Estimated Age",
+                  "widget-id": "estimated_age",
+                  "widget-data-path": "person.estimated_age",
+                  "widget-readonly": true,
+                  "widget-data-format": {
+                    "numericType": "integer",
+                    "allowSigned": false
+                  },
+                  "widget-data-validation": {
+                    "min": 0,
+                    "max": 120
+                  }
                 }
               ]
             },
@@ -82,18 +109,26 @@
                   "widget-id": "village",
                   "widget-data-path": "address.village",
                   "widget-data-default": "Village Name",
-                  "widget-required": false,
                   "widget-readonly": true
                 },
                 {
-                  "widget": "text",
+                  "widget": "select",
                   "widget-type": "input",
                   "widget-label": "Zone",
                   "widget-id": "zone",
                   "widget-data-path": "address.zone",
-                  "widget-data-default": "South Zone",
-                  "widget-required": false,
-                  "widget-readonly": true
+                  "widget-data-default": "south",
+                  "widget-required": true,
+                  "widget-readonly": true,
+                  "widget-data-source": {
+                    "type": "static",
+                    "options": [
+                      { "label": "North Zone", "value": "north" },
+                      { "label": "South Zone", "value": "south" },
+                      { "label": "East Zone", "value": "east" },
+                      { "label": "West Zone", "value": "west" }
+                    ]
+                  }
                 },
                 {
                   "widget": "text",
@@ -102,8 +137,15 @@
                   "widget-id": "area",
                   "widget-data-path": "address.area",
                   "widget-data-default": "Area Name",
-                  "widget-required": false,
-                  "widget-readonly": true
+                  "widget-readonly": true,
+                  "widget-data-options": {
+                    "action": "show",
+                    "condition": {
+                      "field": "address.zone",
+                      "operator": "equals",
+                      "value": "south"
+                    }
+                  }
                 }
               ]
             }
@@ -118,13 +160,29 @@
               "panel-orientation": "vertical",
               "widgets": [
                 {
+                  "widget": "select",
+                  "widget-type": "input",
+                  "widget-label": "Category",
+                  "widget-id": "category_1",
+                  "widget-data-path": "other.category1",
+                  "widget-data-default": "type_a",
+                  "widget-readonly": true,
+                  "widget-data-source": {
+                    "type": "static",
+                    "options": [
+                      { "label": "Type A", "value": "type_a" },
+                      { "label": "Type B", "value": "type_b" },
+                      { "label": "Type C", "value": "type_c" }
+                    ]
+                  }
+                },
+                {
                   "widget": "text",
                   "widget-type": "input",
                   "widget-label": "Details",
                   "widget-id": "details1",
                   "widget-data-path": "other.details1",
                   "widget-data-default": "Details 01",
-                  "widget-required": false,
                   "widget-readonly": true
                 },
                 {
@@ -134,17 +192,6 @@
                   "widget-id": "details2",
                   "widget-data-path": "other.details2",
                   "widget-data-default": "Details 02",
-                  "widget-required": false,
-                  "widget-readonly": true
-                },
-                {
-                  "widget": "text",
-                  "widget-type": "input",
-                  "widget-label": "Details",
-                  "widget-id": "details3",
-                  "widget-data-path": "other.details3",
-                  "widget-data-default": "Details 03",
-                  "widget-required": false,
                   "widget-readonly": true
                 }
               ]
@@ -154,24 +201,21 @@
               "panel-orientation": "vertical",
               "widgets": [
                 {
-                  "widget": "text",
+                  "widget": "number",
                   "widget-type": "input",
-                  "widget-label": "Details",
-                  "widget-id": "details1",
-                  "widget-data-path": "other.details1",
-                  "widget-data-default": "Details 01",
-                  "widget-required": false,
-                  "widget-readonly": true
-                },
-                {
-                  "widget": "text",
-                  "widget-type": "input",
-                  "widget-label": "Details",
-                  "widget-id": "details2",
-                  "widget-data-path": "other.details2",
-                  "widget-data-default": "Details 02",
-                  "widget-required": false,
-                  "widget-readonly": true
+                  "widget-label": "Score",
+                  "widget-id": "score",
+                  "widget-data-path": "other.score",
+                  "widget-data-default": 42,
+                  "widget-readonly": true,
+                  "widget-data-format": {
+                    "numericType": "decimal",
+                    "decimalPlaces": 2
+                  },
+                  "widget-data-validation": {
+                    "min": 0,
+                    "max": 100
+                  }
                 },
                 {
                   "widget": "text",
@@ -180,7 +224,6 @@
                   "widget-id": "details3",
                   "widget-data-path": "other.details3",
                   "widget-data-default": "Details 03",
-                  "widget-required": false,
                   "widget-readonly": true
                 }
               ]
@@ -198,7 +241,6 @@
               "widget-id": "details4",
               "widget-data-path": "other.details4",
               "widget-data-default": "Details 01",
-              "widget-required": false,
               "widget-readonly": true
             },
             {
@@ -208,7 +250,6 @@
               "widget-id": "details5",
               "widget-data-path": "other.details5",
               "widget-data-default": "Details 02",
-              "widget-required": false,
               "widget-readonly": true
             },
             {
@@ -218,7 +259,6 @@
               "widget-id": "details6",
               "widget-data-path": "other.details6",
               "widget-data-default": "Details 03",
-              "widget-required": false,
               "widget-readonly": true
             }
           ]

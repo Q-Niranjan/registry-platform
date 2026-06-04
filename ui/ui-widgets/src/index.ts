@@ -67,9 +67,6 @@ export type {
 export { defaultTheme, resolveTheme } from './theme';
 export { useWidgetTheme } from './hooks/useWidgetTheme';
 
-// i18n
-export { initI18n } from './i18n/config';
 export { useWidgetTranslation } from './hooks/useWidgetTranslation';
-export { default as i18n } from './i18n/config';
 export { translateUISchema, translateWidgetConfig, translatePanelConfig } from './utils/schemaTranslation';
 
