@@ -1,6 +1,6 @@
 import { useAuth } from "@/context/Authcontext";
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
-import { withCsrfHeaders } from "@/shared/utils/csrf";
+import { authFetch } from "@/shared/utils/auth-fetch";
 
 interface UseFetchConfig {
     url?: string | null;
@@ -57,17 +57,15 @@ export function useFetch<T = any>({
         setError(null);
 
         try {
-            const method = (finalOptions?.method || 'GET').toUpperCase();
-            const res = await fetch(finalUrl, {
+            const res = await authFetch(finalUrl, {
                 ...finalOptions,
-                credentials: 'include',
                 headers:
                     finalOptions?.body instanceof FormData
-                        ? withCsrfHeaders(method, finalOptions?.headers)
-                        : withCsrfHeaders(method, {
+                        ? finalOptions?.headers
+                        : {
                             "Content-Type": "application/json",
                             ...(finalOptions?.headers ?? {}),
-                        }),
+                        },
                 signal: controller.signal,
             });
 
@@ -99,7 +97,7 @@ export function useFetch<T = any>({
                 setLoading(false);
             }
         }
-    }, [url, optionsString]);
+    }, [url, optionsString, handleUnauthorized]);
 
     // Auto-fetch using execute
     useEffect(() => {

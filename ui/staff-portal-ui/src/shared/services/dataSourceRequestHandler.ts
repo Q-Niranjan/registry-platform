@@ -1,6 +1,6 @@
 "use client";
 
-import { withCsrfHeaders } from '@/shared/utils/csrf';
+import { authFetch } from '@/shared/utils/auth-fetch';
 
 export type DataSourceRequestHandler = (
     service: string,
@@ -21,15 +21,18 @@ export const dataSourceRequestHandler: DataSourceRequestHandler = async (
         const url = `/api/${service}/${endpoint}`;
         const requestMethod = method || 'POST';
 
-        const response = await fetch(url, {
+        const response = await authFetch(url, {
             method: requestMethod,
-            credentials: 'include',
-            headers: withCsrfHeaders(requestMethod, {
+            headers: {
                 'Content-Type': 'application/json',
                 ...options?.headers,
-            }),
+            },
             body: JSON.stringify(params),
         });
+
+        if (response.status === 401) {
+            throw new Error('Unauthorized');
+        }
 
         if (!response.ok) {
             throw new Error('There was an issue fetching data. Please try again.');

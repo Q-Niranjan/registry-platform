@@ -4,7 +4,6 @@ import { getBackendConfig } from "./backend-config";
 import { BackendResponse, RequestBody } from "./backend-types";
 import { createBackendRequest } from "./backend-request";
 import { requireAuth } from "./requireAuth";
-import { applyBackendSetCookies } from "./auth-cookies";
 
 export type PayloadBuilder = (body: any) => RequestBody;
 export type ResponseTransformer = (responseBody: any) => any;
@@ -95,8 +94,6 @@ export async function proxyToBackend({
 
 			const backendRequest = createBackendRequest(payload, origin);
 
-			// console.log(backendRequest, "backendRequest*********************", backendUrl, "backendUrl*********************")
-
 			fetchOptions.headers = {
 				...auth.backendHeaders,
 				"Content-Type": "application/json",
@@ -113,7 +110,7 @@ export async function proxyToBackend({
 
 			const status = errorCodeMap[errorCode] || 400;
 
-			const errorResponse = NextResponse.json(
+			return NextResponse.json(
 				{
 					error: backendResponse.response_header.response_error_message,
 					code: errorCode,
@@ -123,8 +120,6 @@ export async function proxyToBackend({
 					headers: responseHeaders,
 				}
 			);
-			applyBackendSetCookies(response, errorResponse);
-			return errorResponse;
 		}
 
 		const responseBody = backendResponse.response_body;
@@ -133,17 +128,13 @@ export async function proxyToBackend({
 			: responseBody?.response_payload;
 
 		if (data === undefined) {
-			const emptyResponse = NextResponse.json(
+			return NextResponse.json(
 				{ error: 'Empty response from backend' },
 				{ status: 500, headers: responseHeaders },
 			);
-			applyBackendSetCookies(response, emptyResponse);
-			return emptyResponse;
 		}
 
-		const successResponse = NextResponse.json(data, { headers: responseHeaders });
-		applyBackendSetCookies(response, successResponse);
-		return successResponse;
+		return NextResponse.json(data, { headers: responseHeaders });
 
 	} catch (e) {
 		return NextResponse.json(

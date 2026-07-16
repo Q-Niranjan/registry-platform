@@ -11,6 +11,7 @@ import {
 } from "react";
 
 import { useAuth } from "@/context/Authcontext";
+import { authFetch } from "@/shared/utils/auth-fetch";
 import { useTranslations } from "next-intl";
 
 interface RbacContextType {
@@ -39,7 +40,7 @@ export function RbacProvider({ children }: { children: ReactNode }) {
 
         setLoading(true);
         try {
-            const res = await fetch("/api/permissions", { cache: "no-store" });
+            const res = await authFetch("/api/permissions", { cache: "no-store" });
 
             if (res.status === 401) {
                 handleUnauthorized();

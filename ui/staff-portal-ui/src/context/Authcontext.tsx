@@ -4,6 +4,13 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 
+import { authFetch, bootstrapSessionFromToken, clearAuthTokens, refreshAccessToken } from '@/shared/utils/auth-fetch';
+import {
+    captureSessionTokenFromUrl,
+    getAccessToken,
+    getSessionToken,
+} from '@/shared/utils/session-auth';
+
 interface AuthContextType {
     isLoggedIn: boolean;
     user: any | null;
@@ -20,24 +27,71 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [errorCode, setErrorCode] = useState<string | null>(null);
     const t = useTranslations();
 
-    const logout = useCallback(() => {
+    const logout = useCallback(async () => {
+        const returnTo = window.location.origin + '/';
+        try {
+            await authFetch('/api/logout', {
+                method: 'POST',
+                retryOnUnauthorized: false,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ redirect_uri: returnTo }),
+            });
+        } catch {
+            // best-effort
+        }
+        clearAuthTokens();
         setIsLoggedIn(false);
         setUser(null);
-        window.location.href = '/api/logout';
+
+        window.location.href = `/api/login?redirect_uri=${encodeURIComponent(returnTo)}`;
     }, []);
 
     const handleUnauthorized = useCallback(() => {
+        clearAuthTokens();
         setIsLoggedIn(false);
         setUser(null);
-        window.location.href = `/api/login?redirect_uri=${encodeURIComponent(window.location.href)}`;
+        
+        const loopKey = 'openg2p_auth_login_loop';
+        const last = Number(sessionStorage.getItem(loopKey) || '0');
+        const now = Date.now();
+        if (now - last < 8000) {
+            setErrorCode('AUTH_GENERIC_ERROR');
+            setIsLoading(false);
+            return;
+        }
+        sessionStorage.setItem(loopKey, String(now));
+        window.location.href = `/api/sso?redirect_uri=${encodeURIComponent(window.location.href)}`;
     }, []);
 
     useEffect(() => {
         async function initAuth() {
             try {
-                const res = await fetch("/api/me");
+                const fromUrl = captureSessionTokenFromUrl();
+                const sessionToken = fromUrl || getSessionToken();
+
+                if (sessionToken && (fromUrl || !getAccessToken())) {
+                    const ok = await bootstrapSessionFromToken(sessionToken);
+                    if (!ok && fromUrl) {
+                        handleUnauthorized();
+                        return;
+                    }
+                }
+
+                const res = await authFetch('/api/me');
 
                 if (res.status === 401) {
+                    // Host-only BFF cookies and/or sessionStorage — try opaque token exchange.
+                    const refreshed = await refreshAccessToken();
+                    if (refreshed) {
+                        const retry = await authFetch('/api/me', { retryOnUnauthorized: false });
+                        if (retry.ok) {
+                            const data = await retry.json();
+                            setUser(data);
+                            setIsLoggedIn(true);
+                            return;
+                        }
+                    }
+
                     let error: any = {};
                     try {
                         error = await res.json();
@@ -52,22 +106,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         errorObj.message ||
                         error?.response_header?.response_error_message ||
                         error?.error ||
-                        ""
+                        ''
                     ).toLowerCase();
 
-                    if (
-                        message.includes("expired") ||
-                        message.includes("invalid jwt") ||
-                        message.includes("inactive token") ||
-                        message.includes("session has ended") ||
-                        message.includes("refresh failed") ||
-                        code === 'G2P-AUT-LOGIN-REQUIRED'
-                    ) {
-                        handleUnauthorized();
-                        return;
-                    }
+                if (
+                    message.includes('expired') ||
+                    message.includes('invalid jwt') ||
+                    message.includes('inactive token') ||
+                    message.includes('session has ended') ||
+                    message.includes('refresh failed') ||
+                    message.includes('session expired') ||
+                    code === 'G2P-AUT-LOGIN-REQUIRED' ||
+                    code === 'G2P-AUT-401' ||
+                    !code
+                ) {
+                    // Portal session gone — try SSO silent re-login before interactive.
+                    handleUnauthorized();
+                    return;
+                }
 
-                    setErrorCode("AUTH_GENERIC_ERROR");
+                    setErrorCode('AUTH_GENERIC_ERROR');
                     return;
                 }
 
@@ -84,21 +142,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 const data = await res.json();
 
                 if (res.ok) {
+                    sessionStorage.removeItem('openg2p_auth_login_loop');
                     setUser(data);
                     setIsLoggedIn(true);
                 } else {
                     console.log(data);
                 }
-
             } catch (err) {
-                console.error("Request failed:", err);
+                console.error('Request failed:', err);
             } finally {
                 setIsLoading(false);
             }
         }
 
         initAuth();
-    }, []);
+    }, [handleUnauthorized]);
 
     if (isLoading) {
         return (

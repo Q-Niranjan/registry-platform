@@ -5,8 +5,8 @@ export function getServerEnv() {
         masterdataBackendApiUrl: process.env.MASTERDATA_BACKEND_API_URL ?? "",
         iamUrl: process.env.IAM_URL ?? "",
         loginProviderId: process.env.LOGIN_PROVIDER_ID ?? "",
-        applicationMnemonic: process.env.APPLICATION_MNEMONIC ?? "openg2p-registry",
-        cookieDomain: process.env.COOKIE_DOMAIN?.trim() ?? "",
+        // Runtime pod env — must match IAM_STAFF_APP_MNEMONIC on staff IAM.
+        applicationMnemonic: process.env.IAM_STAFF_APP_MNEMONIC?.trim() || "registry-staff-portal",
 
         defaultLocale: process.env.DEFAULT_LOCALE ?? "",
 
