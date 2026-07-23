@@ -23,7 +23,7 @@ import { defaultTheme } from '../src/theme';
 import type { WidgetTheme } from '../src/theme';
 import type { SectionChanges } from '../src/components/SectionRenderer';
 import type { SectionMode } from '../src/components/SectionsContainer';
-import { themeSections, THEME_REGISTER_ID } from './shared/exampleSchemas';
+import { themeSections, themeSectionRegisterIds, THEME_REGISTER_ID } from './shared/exampleSchemas';
 import { themeSampleData } from './shared/exampleData';
 
 // ─────────────────────────────────────────────────────────────────
@@ -591,6 +591,7 @@ export const ThemeExample = () => {
         {/* ── Sections ─────────────────────────────────────────── */}
         <SectionsContainer
           sections={themeSections}
+          sectionRegisterIds={themeSectionRegisterIds}
           schemaData={sampleData}
           mode={mode}
           onSectionSave={handleSectionSave}

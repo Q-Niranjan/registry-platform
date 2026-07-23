@@ -4,6 +4,7 @@ import { useWidgetContext } from '../components/WidgetProvider';
 import { BaseWidgetConfig } from '../types';
 import { WidgetRootState } from '../store';
 import { getValueByPath } from '../utils/pathUtils';
+import { useSectionScope } from '../context/SectionScopeContext';
 
 type AuthStatus = 'success' | 'failure' | 'not_done' | 'not done' | 'not-done' | 'unknown';
 
@@ -181,6 +182,7 @@ function unwrapPayload(response: any): any {
 
 export const IdAuthenticationWidget = ({ config, schemaData: propSchemaData }: IdAuthenticationWidgetProps) => {
   const { dataSourceRequestHandler, schemaData: ctxSchemaData, t } = useWidgetContext();
+  const scope = useSectionScope();
   const values = useSelector((state: WidgetRootState) => state.widget.values) as unknown as Record<string, unknown>;
 
   const schemaData = (propSchemaData || ctxSchemaData || {}) as Record<string, unknown>;
@@ -189,8 +191,11 @@ export const IdAuthenticationWidget = ({ config, schemaData: propSchemaData }: I
   const dataPath = config['widget-data-path'] as unknown;
   const paths = useMemo<DataPaths>(() => {
     if (!dataPath || typeof dataPath !== 'object') return {};
-    return dataPath as DataPaths;
-  }, [dataPath]);
+    const resolved = scope
+      ? scope.resolveDataPath(dataPath as Record<string, string>)
+      : dataPath;
+    return (resolved || {}) as DataPaths;
+  }, [dataPath, scope]);
 
   const authConfig = (config as any)['widget-auth-config'] as AuthConfig | undefined;
 

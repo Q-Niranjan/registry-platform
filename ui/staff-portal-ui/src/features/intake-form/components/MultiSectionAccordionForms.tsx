@@ -81,6 +81,17 @@ export default function MultiSectionAccordionForms({
     [sections]
   );
 
+  const sectionRegisterIds = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const section of sections) {
+      const schemaSectionId = section.section_ui_schema?.['section-id'] ?? section.section_id;
+      if (schemaSectionId && section.section_register_id) {
+        map[schemaSectionId] = section.section_register_id;
+      }
+    }
+    return map;
+  }, [sections]);
+
   const intakeFormHeading = useMemo(() => form_name, [form_name]);
   const intakeFormDescription = useMemo(() => form_description, [form_description]);
 
@@ -152,6 +163,7 @@ export default function MultiSectionAccordionForms({
             <div className={`flex-1 min-w-0 ${formDetailsCard ? 'pr-4' : ''}`}>
               <IntakeFormSections
                 sectionsConfig={sectionsConfig}
+                sectionRegisterIds={sectionRegisterIds}
                 schemaData={schemaData}
                 showActions={showActions}
                 onSectionSave={handleSectionSave}

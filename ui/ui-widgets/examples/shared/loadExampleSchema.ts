@@ -43,6 +43,11 @@ export function loadSectionSchema(
   options: LoadSchemaOptions = {},
 ): SectionConfig {
   const registerId = options.registerId ?? DEFAULT_REGISTER_ID;
+  /**
+   * Replacements apply to placeholder strings still present in schemas.
+   * Do not put section_register_id in JSON — pass sectionRegisterIds as a prop instead.
+   * Paths are always relative and resolve as `<sectionRegisterId>.<path>`.
+   */
   const replacements: Record<string, string> = {
     'register-id': registerId,
     'source-register-id': registerId,

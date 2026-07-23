@@ -7,6 +7,7 @@ import { WidgetRootState } from '../store';
 import { setValues } from '../store/widgetSlice';
 import { useWidgetContext } from '../components/WidgetProvider';
 import { getValueByPath, setValueByPath } from '../utils/pathUtils';
+import { useSectionScope } from '../context/SectionScopeContext';
 import {
   getStaticDataSource,
   getApiDataSource,
@@ -123,6 +124,7 @@ export const HeaderSectionWidget = ({ config }: HeaderSectionWidgetProps) => {
   const dispatch = useDispatch();
   const { t } = useWidgetContext();
   const { schemaData } = useWidgetContext();
+  const scope = useSectionScope();
   const values = useSelector((state: WidgetRootState) => state.widget.values);
 
   const isReadonly = widgetConfig['widget-readonly'] !== false;
@@ -156,8 +158,9 @@ export const HeaderSectionWidget = ({ config }: HeaderSectionWidgetProps) => {
 
   const paths = useMemo(() => {
     if (!dataPath || typeof dataPath !== 'object') return {} as Record<string, string>;
-    return dataPath as Record<string, string>;
-  }, [dataPath]);
+    const resolved = scope ? scope.resolveDataPath(dataPath as Record<string, string>) : dataPath;
+    return (resolved || {}) as Record<string, string>;
+  }, [dataPath, scope]);
 
   const findValue = useCallback(
     (fieldKey: string): any => {

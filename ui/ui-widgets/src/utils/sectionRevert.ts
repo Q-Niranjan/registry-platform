@@ -1,6 +1,7 @@
 import { SectionConfig, SupportingDocumentConfig } from '../types';
 import { collectWidgets } from './sectionValidate';
 import { getValueByPath, setValueByPath } from './pathUtils';
+import { buildScopeResolver } from '../context/SectionScopeContext';
 
 export interface SectionWidgetIdSnapshot {
   present: boolean;
@@ -28,15 +29,22 @@ export function captureSectionEditSnapshot(
   section: SectionConfig,
   options?: {
     sectionId?: string;
+    sectionRegisterId?: string;
     supportingDocuments?: SupportingDocumentConfig[];
   }
 ): SectionEditSnapshot {
-  const { sectionId, supportingDocuments = [] } = options ?? {};
+  const { sectionId, sectionRegisterId, supportingDocuments = [] } = options ?? {};
+  const toStorePath = buildScopeResolver(sectionRegisterId);
   const dataPaths: Array<{ path: string; value: any }> = [];
   const processedPaths = new Set<string>();
   const widgetIds: Record<string, SectionWidgetIdSnapshot> = {};
 
-  const addPath = (path: string) => {
+  /**
+   * Paths stored in the snapshot are always **absolute** store paths so that
+   * `applySectionEditSnapshot` can use `setValueByPath` directly.
+   */
+  const addPath = (relativePath: string) => {
+    const path = toStorePath ? toStorePath(relativePath) : relativePath;
     if (!path || processedPaths.has(path)) {
       return;
     }

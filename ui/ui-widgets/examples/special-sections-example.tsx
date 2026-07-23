@@ -6,7 +6,7 @@ import React, { useCallback, useMemo } from 'react';
 import { createWidgetStore } from '../src/store';
 import { WidgetProvider, SectionsContainer } from '../src';
 import type { SectionChanges } from '../src/components/SectionRenderer';
-import { specialSections } from './shared/exampleSchemas';
+import { specialSections, specialSectionRegisterIds } from './shared/exampleSchemas';
 import { specialSectionsSchemaData } from './shared/exampleData';
 import { createExampleDataSourceHandler } from './shared/mockDataSourceHandler';
 
@@ -58,6 +58,7 @@ export const SpecialSectionsExample = () => {
 
         <SectionsContainer
           sections={specialSections}
+          sectionRegisterIds={specialSectionRegisterIds}
           schemaData={specialSectionsSchemaData}
           mode="RegistryView"
           onSectionSave={handleSectionSave}

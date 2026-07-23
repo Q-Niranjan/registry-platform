@@ -16,13 +16,13 @@
           "widget-id": "id-auth",
           "widget-readonly": true,
           "widget-data-path": {
-            "internalRecordId": "register-id.internal_record_id",
-            "initiatedByStaffId": "register-id.initiated_by_staff_id",
-            "foundationalId": "register-id.foundational_id",
-            "lastAuthenticatedOn": "register-id.last_authenticated_on",
-            "lastAuthenticationStatus": "register-id.last_authentication_status",
-            "expiryDate": "register-id.authentication_expiry_date",
-            "authenticationToken": "register-id.psut"
+            "internalRecordId": "internal_record_id",
+            "initiatedByStaffId": "initiated_by_staff_id",
+            "foundationalId": "foundational_id",
+            "lastAuthenticatedOn": "last_authenticated_on",
+            "lastAuthenticationStatus": "last_authentication_status",
+            "expiryDate": "authentication_expiry_date",
+            "authenticationToken": "psut"
           },
           "widget-auth-config": {
             "service": "registry",

@@ -16,7 +16,7 @@
               "widget-id": "birth_date",
               "widget-type": "input",
               "widget-label": "Birth Date",
-              "widget-data-path": "register-id.birth_date",
+              "widget-data-path": "birth_date",
               "widget-required": true
             },
             {
@@ -24,14 +24,14 @@
               "widget-id": "estimated_age",
               "widget-type": "input",
               "widget-label": "Estimated Age",
-              "widget-data-path": "register-id.estimated_age"
+              "widget-data-path": "estimated_age"
             },
             {
               "widget": "select",
               "widget-id": "gender",
               "widget-type": "input",
               "widget-label": "Gender",
-              "widget-data-path": "register-id.gender",
+              "widget-data-path": "gender",
               "widget-required": true,
               "widget-data-source": {
                 "type": "static",
@@ -53,7 +53,7 @@
               "widget-id": "marital_status",
               "widget-type": "input",
               "widget-label": "Marital Status",
-              "widget-data-path": "register-id.marital_status",
+              "widget-data-path": "marital_status",
               "widget-required": true,
               "widget-data-source": {
                 "type": "static",
@@ -70,7 +70,7 @@
               "widget-id": "education_level",
               "widget-type": "input",
               "widget-label": "Education Level",
-              "widget-data-path": "register-id.education_level",
+              "widget-data-path": "education_level",
               "widget-data-source": {
                 "type": "static",
                 "options": [
@@ -86,7 +86,7 @@
               "widget-id": "external_reference_id",
               "widget-type": "input",
               "widget-label": "External reference ID",
-              "widget-data-path": "register-id.external_reference_id"
+              "widget-data-path": "external_reference_id"
             }
           ]
         },
@@ -99,7 +99,7 @@
               "widget-id": "has_personal_phone",
               "widget-type": "input",
               "widget-label": "Has Personal Phone",
-              "widget-data-path": "register-id.has_personal_phone",
+              "widget-data-path": "has_personal_phone",
               "widget-data-format": { "layout": "vertical", "sortOptions": false },
               "widget-data-source": {
                 "type": "static",
@@ -114,7 +114,7 @@
               "widget-id": "phone",
               "widget-type": "input",
               "widget-label": "Phone",
-              "widget-data-path": "register-id.phone",
+              "widget-data-path": "phone",
               "widget-required": true
             },
             {
@@ -122,7 +122,7 @@
               "widget-id": "email",
               "widget-type": "input",
               "widget-label": "Email",
-              "widget-data-path": "register-id.email",
+              "widget-data-path": "email",
               "widget-data-validation": { "validationType": "email", "required": true }
             }
           ]

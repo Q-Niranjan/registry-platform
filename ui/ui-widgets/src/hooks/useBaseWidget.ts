@@ -4,6 +4,7 @@ import { BaseWidgetConfig, DataSourceRequestHandler } from '../types';
 import { WidgetRootState } from '../store';
 import { setValue, setValues, setError, setTouched, setLoading, setDataSource } from '../store/widgetSlice';
 import { getWidgetValue, setWidgetValue } from '../utils/pathUtils';
+import { useSectionScope } from '../context/SectionScopeContext';
 import { validateWidget } from '../utils/validation';
 import { shouldShowWidget, shouldEnableWidget, evaluateWidgetConditions, hasVisibilityRules } from '../utils/conditions';
 import { formatValue } from '../utils/formatting';
@@ -32,6 +33,7 @@ export const useBaseWidget = (options: UseBaseWidgetOptions) => {
   const dispatch = useDispatch();
   const context = useWidgetContext();
   const eventBus = useWidgetEventBus();
+  const scope = useSectionScope();
   const widgetId = config['widget-id'];
 
   const dataSourceRequestHandler = propHandler || context.dataSourceRequestHandler;
@@ -92,7 +94,8 @@ export const useBaseWidget = (options: UseBaseWidgetOptions) => {
     }
 
     if (value === undefined && config['widget-data-path']) {
-      value = getWidgetValue(values, config['widget-data-path'], widgetId);
+      const resolvedPath = scope ? scope.resolveDataPath(config['widget-data-path']) : config['widget-data-path'];
+      value = getWidgetValue(values, resolvedPath, widgetId);
 
       if (value !== null && value !== undefined && typeof value === 'object' && !Array.isArray(value)) {
         value = extractValueFromObject(value);
@@ -131,7 +134,8 @@ export const useBaseWidget = (options: UseBaseWidgetOptions) => {
       return;
     }
 
-    const rawValue = getWidgetValue(values, config['widget-data-path'], widgetId);
+    const resolvedMirrorPath = scope ? scope.resolveDataPath(config['widget-data-path']) : config['widget-data-path'];
+    const rawValue = getWidgetValue(values, resolvedMirrorPath, widgetId);
     if (rawValue !== undefined && rawValue !== null) {
       const extractedValue = extractValueFromObject(rawValue);
       if (
@@ -157,6 +161,8 @@ export const useBaseWidget = (options: UseBaseWidgetOptions) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLayoutWidget]); // Only run once on mount
 
+  const resolvePath = scope?.toStorePath;
+
   const resolveIsRequired = useCallback(
     (currentValues: Record<string, any>) => {
       if (isLayoutWidget) {
@@ -169,16 +175,18 @@ export const useBaseWidget = (options: UseBaseWidgetOptions) => {
         config['widget-data-options'],
         currentValues,
         config['widget-required'] ?? false,
+        resolvePath,
       ).required;
     },
-    [config, isLayoutWidget],
+    [config, isLayoutWidget, resolvePath],
   );
 
   // CRITICAL: Don't include 'values' in dependency array - it causes the callback to be recreated
   const handleChange = useCallback(
     (newValue: any, validate: boolean = true) => {
       const currentValues = valuesRef.current;
-      const currentValue = currentValues[widgetId] || getWidgetValue(currentValues, config['widget-data-path'], widgetId);
+      const resolvedHandlePath = scope ? scope.resolveDataPath(config['widget-data-path']) : config['widget-data-path'];
+      const currentValue = currentValues[widgetId] || getWidgetValue(currentValues, resolvedHandlePath, widgetId);
 
       // CRITICAL: Prevent setting the same value (avoids unnecessary dispatches and potential loops)
       if (currentValue === newValue) {
@@ -222,7 +230,7 @@ export const useBaseWidget = (options: UseBaseWidgetOptions) => {
         };
         const updatedValues = setWidgetValue(
           currentValuesWithUpdate,
-          config['widget-data-path'],
+          resolvedHandlePath,
           widgetId,
           newValue
         );
@@ -284,8 +292,8 @@ export const useBaseWidget = (options: UseBaseWidgetOptions) => {
     if (isLayoutWidget && !hasVisibilityRules(config['widget-data-options'])) {
       return true;
     }
-    return shouldShowWidget(config['widget-data-options'], values);
-  }, [config['widget-data-options'], values, isLayoutWidget]);
+    return shouldShowWidget(config['widget-data-options'], values, resolvePath);
+  }, [config['widget-data-options'], values, isLayoutWidget, resolvePath]);
 
   const isEnabled = useMemo(() => {
     if (isLayoutWidget) {
@@ -294,8 +302,8 @@ export const useBaseWidget = (options: UseBaseWidgetOptions) => {
     if (config['widget-readonly']) {
       return false;
     }
-    return shouldEnableWidget(config['widget-data-options'], values);
-  }, [config['widget-readonly'], config['widget-data-options'], values, isLayoutWidget]);
+    return shouldEnableWidget(config['widget-data-options'], values, resolvePath);
+  }, [config['widget-readonly'], config['widget-data-options'], values, isLayoutWidget, resolvePath]);
 
   const isRequired = useMemo(
     () => resolveIsRequired(values),
@@ -338,10 +346,18 @@ export const useBaseWidget = (options: UseBaseWidgetOptions) => {
     if (dataSource?.type !== 'api' || !dataSource.dependsOn) {
       return null;
     }
-    if (dataSource.dependsOn.includes('.')) {
-      return getWidgetValue(state.widget.values, dataSource.dependsOn, '');
+    const dep = dataSource.dependsOn;
+    if (dep.includes('.')) {
+      // Nested relative field path → scope under section UUID
+      const resolvedDep = scope ? scope.toStorePath(dep) : dep;
+      return getWidgetValue(state.widget.values, resolvedDep, '');
     }
-    return state.widget.values[dataSource.dependsOn];
+    const direct = state.widget.values[dep];
+    if (direct !== undefined && direct !== null && direct !== '') return direct;
+    if (scope) {
+      return getWidgetValue(state.widget.values, scope.toStorePath(dep), '');
+    }
+    return direct;
   });
 
   useEffect(() => {
@@ -357,17 +373,24 @@ export const useBaseWidget = (options: UseBaseWidgetOptions) => {
     if (dataSource.type === 'api' && dataSource.dependsOn) {
       let depValue: any = null;
       if (dataSource.dependsOn.includes('.')) {
-        depValue = getWidgetValue(values, dataSource.dependsOn, '');
+        // Nested relative field path → scope under section UUID
+        const resolvedDep = scope ? scope.toStorePath(dataSource.dependsOn) : dataSource.dependsOn;
+        depValue = getWidgetValue(values, resolvedDep, '');
       } else {
         depValue = values[dataSource.dependsOn];
 
-        if (
+        if ((depValue === undefined || depValue === null || depValue === '') && scope) {
+          // Try as a sibling field in the current section scope
+          const tryPath = scope.toStorePath(dataSource.dependsOn);
+          depValue = getWidgetValue(values, tryPath, '');
+        } else if (
           (depValue === undefined || depValue === null || depValue === '') &&
           typeof config['widget-data-path'] === 'string' &&
           config['widget-data-path'].includes('.')
         ) {
+          // Legacy fallback: derive prefix from the dotted widget-data-path (old UUID-prefixed schemas)
           const pathParts = config['widget-data-path'].split('.');
-          pathParts.pop(); // Remove current field name
+          pathParts.pop();
           const prefix = pathParts.join('.');
           const tryPath = `${prefix}.${dataSource.dependsOn}`;
           depValue = getWidgetValue(values, tryPath, '');
@@ -395,7 +418,7 @@ export const useBaseWidget = (options: UseBaseWidgetOptions) => {
         };
 
         if (dataSource.type === 'api') {
-          const cached = getCachedApiDataSource(dataSource, valuesRef.current);
+          const cached = getCachedApiDataSource(dataSource, valuesRef.current, resolvePath);
           if (cached) {
             const { valueKey, labelKey } = resolveOptionKeys();
             dispatch(setDataSource({
@@ -418,7 +441,7 @@ export const useBaseWidget = (options: UseBaseWidgetOptions) => {
             dispatch(setDataSource({ widgetId, data: [] }));
             return;
           }
-          data = await getApiDataSource(dataSource, valuesRef.current, currentHandler);
+          data = await getApiDataSource(dataSource, valuesRef.current, currentHandler, resolvePath);
         } else if (dataSource.type === 'schema') {
           data = getSchemaDataSource(dataSource, schemaData || {});
         }

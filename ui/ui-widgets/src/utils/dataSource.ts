@@ -8,14 +8,20 @@ const apiDataSourceInflight = new Map<string, Promise<any[]>>();
 
 function buildApiRequestContext(
   dataSource: ApiDataSource,
-  allValues: Record<string, any>
+  allValues: Record<string, any>,
+  resolvePath?: (path: string) => string,
 ): { service: string; endpoint: string; method: string; requestParams: Record<string, any> } | null {
   let depValue: any = null;
   if (dataSource.dependsOn) {
-    if (dataSource.dependsOn.includes('.')) {
-      depValue = getValueByPath(allValues, dataSource.dependsOn);
+    const dep = dataSource.dependsOn;
+    if (dep.includes('.')) {
+      const resolved = resolvePath ? resolvePath(dep) : dep;
+      depValue = getValueByPath(allValues, resolved);
     } else {
-      depValue = resolveWidgetIdValue(allValues, dataSource.dependsOn);
+      depValue = resolveWidgetIdValue(allValues, dep);
+      if ((depValue === undefined || depValue === null || depValue === '') && resolvePath) {
+        depValue = getValueByPath(allValues, resolvePath(dep));
+      }
     }
     if (depValue === null || depValue === undefined || depValue === '') {
       return null;
@@ -67,9 +73,10 @@ function buildApiDataSourceCacheKey(
 /** Return cached API options when already fetched (e.g. duplicate table cells). */
 export function getCachedApiDataSource(
   dataSource: ApiDataSource,
-  allValues: Record<string, any>
+  allValues: Record<string, any>,
+  resolvePath?: (path: string) => string,
 ): any[] | undefined {
-  const context = buildApiRequestContext(dataSource, allValues);
+  const context = buildApiRequestContext(dataSource, allValues, resolvePath);
   if (!context) {
     return undefined;
   }
@@ -96,7 +103,8 @@ export const getStaticDataSource = (dataSource: Extract<DataSource, { type: 'sta
 export const getApiDataSource = async (
   dataSource: Extract<DataSource, { type: 'api' }>,
   allValues: Record<string, any>,
-  dataSourceRequestHandler: DataSourceRequestHandler
+  dataSourceRequestHandler: DataSourceRequestHandler,
+  resolvePath?: (path: string) => string,
 ): Promise<any[]> => {
   if (!dataSourceRequestHandler) {
     console.error('[getApiDataSource] dataSourceRequestHandler is required for API data sources');
@@ -104,7 +112,7 @@ export const getApiDataSource = async (
   }
 
   try {
-    const context = buildApiRequestContext(dataSource, allValues);
+    const context = buildApiRequestContext(dataSource, allValues, resolvePath);
     if (!context) {
       return [];
     }

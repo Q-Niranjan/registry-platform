@@ -8,7 +8,7 @@
   "section-editable": true,
   "section-supporting-documents": [
     {
-      "document-data-path": "register-id.national_id_document",
+      "document-data-path": "national_id_document",
       "document-type": "pdf",
       "document-label": "National ID Document",
       "document-required": true,
@@ -16,7 +16,7 @@
       "document-max-size": 5242880
     },
     {
-      "document-data-path": "register-id.proof_of_residence",
+      "document-data-path": "proof_of_residence",
       "document-type": "pdf",
       "document-label": "Proof of Residence",
       "document-required": false,
@@ -25,7 +25,7 @@
     }
     // Additional document slot example:
     // ,{
-    //   "document-data-path": "register-id.passport_photo",
+    //   "document-data-path": "passport_photo",
     //   "document-type": "image",
     //   "document-label": "Passport Photo",
     //   "document-required": true,

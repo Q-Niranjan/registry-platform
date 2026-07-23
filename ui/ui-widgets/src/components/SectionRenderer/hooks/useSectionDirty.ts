@@ -50,9 +50,10 @@ export const useSectionDirty = ({
     const supportingDocuments = section['section-supporting-documents'] || [];
     editEntrySnapshotRef.current = captureSectionEditSnapshot(currentValues, section, {
       sectionId,
+      sectionRegisterId,
       supportingDocuments: hasSupportingDocuments ? supportingDocuments : [],
     });
-  }, [store, section, sectionId, hasSupportingDocuments]);
+  }, [store, section, sectionId, sectionRegisterId, hasSupportingDocuments]);
 
   const isDirty = useMemo(() => {
     if (!effectiveEditModeForDirty) return false;

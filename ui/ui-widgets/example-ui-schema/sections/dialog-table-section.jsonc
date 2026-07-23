@@ -19,7 +19,7 @@
           "widget-id": "members_table",
           "widget-label": "Household Member Records",
           "widget-readonly": false,
-          "widget-data-path": "register-id.records",
+          "widget-data-path": "records",
           "widget-data-add-label": "Add Member",
           "widget-data-operations": {
             "add": true,

@@ -12,13 +12,17 @@ const normalizeBooleanLike = (val: unknown): boolean => {
 };
 
 /**
- * Evaluate condition against field value
+ * Evaluate condition against field value.
+ * @param resolvePath Optional function to convert a schema-relative field path to
+ *   the absolute store path (provided by section scope).
  */
 export const evaluateCondition = (
   condition: WidgetCondition,
-  allValues: Record<string, any>
+  allValues: Record<string, any>,
+  resolvePath?: (path: string) => string,
 ): boolean => {
-  const fieldValue = getValueByPath(allValues, condition.field);
+  const field = resolvePath ? resolvePath(condition.field) : condition.field;
+  const fieldValue = getValueByPath(allValues, field);
   const { operator, value } = condition;
 
   switch (operator) {
@@ -102,6 +106,7 @@ export const evaluateWidgetConditions = (
   options: WidgetOptions | undefined,
   allValues: Record<string, any>,
   baseRequired: boolean = false,
+  resolvePath?: (path: string) => string,
 ): WidgetConditionState => {
   let visible = true;
   let enabled = true;
@@ -114,7 +119,7 @@ export const evaluateWidgetConditions = (
       continue;
     }
 
-    const match = evaluateCondition(rule.condition, allValues);
+    const match = evaluateCondition(rule.condition, allValues, resolvePath);
 
     switch (rule.action) {
       case 'show':
@@ -143,15 +148,18 @@ export const evaluateWidgetConditions = (
 export const shouldShowWidget = (
   options: WidgetOptions | undefined,
   allValues: Record<string, any>,
-): boolean => evaluateWidgetConditions(options, allValues).visible;
+  resolvePath?: (path: string) => string,
+): boolean => evaluateWidgetConditions(options, allValues, false, resolvePath).visible;
 
 export const shouldEnableWidget = (
   options: WidgetOptions | undefined,
   allValues: Record<string, any>,
-): boolean => evaluateWidgetConditions(options, allValues).enabled;
+  resolvePath?: (path: string) => string,
+): boolean => evaluateWidgetConditions(options, allValues, false, resolvePath).enabled;
 
 export const shouldRequireWidget = (
   options: WidgetOptions | undefined,
   allValues: Record<string, any>,
   baseRequired: boolean = false,
-): boolean => evaluateWidgetConditions(options, allValues, baseRequired).required;
+  resolvePath?: (path: string) => string,
+): boolean => evaluateWidgetConditions(options, allValues, baseRequired, resolvePath).required;

@@ -16,7 +16,7 @@
           "widget-type": "input",
           "widget-id": "linked_record",
           "widget-label": "Linked Record",
-          "widget-data-path": "source-register-id.link_internal_record_id",
+          "widget-data-path": "link_internal_record_id",
           "widget-data-source": {
             "type": "api",
             "method": "POST",

@@ -21,7 +21,7 @@
               "widget-type": "input",
               "widget-label": "National ID (Front)",
               "widget-required": true,
-              "widget-data-path": "a1a4d25a-1cd4-4356-abac-985a0b3c6bcd.national_id_front",
+              "widget-data-path": "national_id_front",
               "widget-data-options": {
                 "accept": ".pdf,.jpg,.jpeg,.png",
                 "multiple": false
@@ -33,7 +33,7 @@
               "widget-type": "input",
               "widget-label": "National ID (Back)",
               "widget-required": true,
-              "widget-data-path": "a1a4d25a-1cd4-4356-abac-985a0b3c6bcd.national_id_back",
+              "widget-data-path": "national_id_back",
               "widget-data-options": {
                 "accept": ".pdf,.jpg,.jpeg,.png",
                 "multiple": false
@@ -45,7 +45,7 @@
               "widget-type": "input",
               "widget-label": "Passport Copy",
               "widget-required": false,
-              "widget-data-path": "a1a4d25a-1cd4-4356-abac-985a0b3c6bcd.passport_copy",
+              "widget-data-path": "passport_copy",
               "widget-data-options": {
                 "accept": ".pdf,.jpg,.jpeg,.png",
                 "multiple": false
@@ -63,7 +63,7 @@
               "widget-type": "input",
               "widget-label": "Proof of Address",
               "widget-required": true,
-              "widget-data-path": "a1a4d25a-1cd4-4356-abac-985a0b3c6bcd.proof_of_address",
+              "widget-data-path": "proof_of_address",
               "widget-data-options": {
                 "accept": ".pdf,.jpg,.jpeg,.png",
                 "multiple": false
@@ -75,7 +75,7 @@
               "widget-type": "input",
               "widget-label": "Birth Certificate",
               "widget-required": false,
-              "widget-data-path": "a1a4d25a-1cd4-4356-abac-985a0b3c6bcd.birth_certificate",
+              "widget-data-path": "birth_certificate",
               "widget-data-options": {
                 "accept": ".pdf,.jpg,.jpeg,.png",
                 "multiple": false
@@ -87,7 +87,7 @@
               "widget-type": "input",
               "widget-label": "Income Proof",
               "widget-required": false,
-              "widget-data-path": "a1a4d25a-1cd4-4356-abac-985a0b3c6bcd.income_proof",
+              "widget-data-path": "income_proof",
               "widget-data-options": {
                 "accept": ".pdf,.jpg,.jpeg,.png,.doc,.docx",
                 "multiple": false
@@ -105,7 +105,7 @@
               "widget-type": "input",
               "widget-label": "Bank Statement",
               "widget-required": false,
-              "widget-data-path": "a1a4d25a-1cd4-4356-abac-985a0b3c6bcd.bank_statement",
+              "widget-data-path": "bank_statement",
               "widget-data-options": {
                 "accept": ".pdf,.jpg,.jpeg,.png",
                 "multiple": false
@@ -117,7 +117,7 @@
               "widget-type": "input",
               "widget-label": "Disability Certificate",
               "widget-required": false,
-              "widget-data-path": "a1a4d25a-1cd4-4356-abac-985a0b3c6bcd.disability_certificate",
+              "widget-data-path": "disability_certificate",
               "widget-data-options": {
                 "accept": ".pdf,.jpg,.jpeg,.png",
                 "multiple": false
@@ -129,7 +129,7 @@
               "widget-type": "input",
               "widget-label": "Marriage Certificate",
               "widget-required": false,
-              "widget-data-path": "a1a4d25a-1cd4-4356-abac-985a0b3c6bcd.marriage_certificate",
+              "widget-data-path": "marriage_certificate",
               "widget-data-options": {
                 "accept": ".pdf,.jpg,.jpeg,.png",
                 "multiple": false

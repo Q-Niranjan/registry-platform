@@ -5,6 +5,7 @@ import { useWidgetContext } from '../components/WidgetProvider';
 import { useBaseWidget } from '../hooks/useBaseWidget';
 import { WidgetRootState } from '../store';
 import { getValueByPath } from '../utils/pathUtils';
+import { useSectionScope } from '../context/SectionScopeContext';
 import { BaseWidgetConfig } from '../types';
 import { WidgetFieldLabel } from '../components/WidgetFieldLabel';
 import { openFileInNewTab } from '../utils/filePreview';
@@ -65,6 +66,7 @@ export const DocsWidget = ({ config }: DocsWidgetProps) => {
   } = useBaseWidget({ config });
 
   const { t } = useWidgetContext();
+  const scope = useSectionScope();
 
   const documents: DocSlotConfig[] = widgetConfig['documents'] || [];
   const totalDocs: number = widgetConfig['widget-total-docs'] || documents.length;
@@ -74,8 +76,12 @@ export const DocsWidget = ({ config }: DocsWidgetProps) => {
   const dataPath = widgetConfig['widget-data-path'];
   
   const allValues = useSelector((state: WidgetRootState) => state.widget.values);
+  const resolvedDataPath =
+    typeof dataPath === 'string' && scope ? scope.toStorePath(dataPath) : dataPath;
   const rawValue =
-    typeof dataPath === 'string' ? getValueByPath(allValues, dataPath) : allValues[widgetId];
+    typeof resolvedDataPath === 'string'
+      ? getValueByPath(allValues, resolvedDataPath)
+      : allValues[widgetId];
   const currentValue: DocsValue =
     rawValue && typeof rawValue === 'object' && !Array.isArray(rawValue)
       ? (rawValue as DocsValue)

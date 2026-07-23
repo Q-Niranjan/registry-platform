@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { BaseWidgetConfig, isGeoHierarchyDataSource } from '../types';
 import { useBaseWidget } from './useBaseWidget';
 import { useWidgetContext } from '../components/WidgetProvider';
+import { useSectionScope } from '../context/SectionScopeContext';
 import { WidgetRootState } from '../store';
 import { getValueByPath } from '../utils/pathUtils';
 import {
@@ -64,6 +65,7 @@ export function useGeoHierarchy({ config }: UseGeoHierarchyOptions) {
   const isReadonly = Boolean(config['widget-readonly']);
   const base = useBaseWidget({ config });
   const { dataSourceRequestHandler, schemaData } = useWidgetContext();
+  const scope = useSectionScope();
   const values = useSelector((state: WidgetRootState) => state.widget.values);
 
   const geoDataSource = isGeoHierarchyDataSource(config['widget-data-source'])
@@ -71,8 +73,18 @@ export function useGeoHierarchy({ config }: UseGeoHierarchyOptions) {
     : undefined;
 
   const geoLayout = config['widget-geo-layout'];
-  const hierarchyJsonPath = useMemo(() => resolveHierarchyPath(config), [config]);
-  const dataPath = useMemo(() => resolveDataPath(config), [config]);
+  const hierarchyJsonPathRaw = useMemo(() => resolveHierarchyPath(config), [config]);
+  const dataPathRaw = useMemo(() => resolveDataPath(config), [config]);
+
+  // Resolve relative paths to absolute store paths using section scope
+  const hierarchyJsonPath = useMemo(
+    () => (scope && hierarchyJsonPathRaw ? scope.toStorePath(hierarchyJsonPathRaw) : hierarchyJsonPathRaw),
+    [scope, hierarchyJsonPathRaw],
+  );
+  const dataPath = useMemo(
+    () => (scope && dataPathRaw ? scope.toStorePath(dataPathRaw) : dataPathRaw),
+    [scope, dataPathRaw],
+  );
 
   /**
    * Approved hierarchy for hydrate/display: schema first, then store.

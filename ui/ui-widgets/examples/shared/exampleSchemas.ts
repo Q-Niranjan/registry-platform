@@ -1,4 +1,5 @@
-import { loadSectionSchema } from './loadExampleSchema';
+import { loadSectionSchema, DEFAULT_REGISTER_ID } from './loadExampleSchema';
+import type { SectionConfig } from '../../src/types';
 
 import dialogTableSectionRaw from '../../example-ui-schema/sections/dialog-table-section.jsonc?raw';
 import docsWidgetSectionRaw from '../../example-ui-schema/sections/docs-widget-section.jsonc?raw';
@@ -13,6 +14,20 @@ import tableSectionRaw from '../../example-ui-schema/sections/table-section.json
 import widgetExploreSection1Raw from '../../example-ui-schema/sections/widget-explore-section1.jsonc?raw';
 import widgetExploreSection2Raw from '../../example-ui-schema/sections/widget-explore-section2.jsonc?raw';
 import widgetExploreSection3Raw from '../../example-ui-schema/sections/widget-explore-section3.jsonc?raw';
+
+/** Build `section-id` → `section_register_id` map for SectionsContainer. */
+export function buildSectionRegisterIds(
+  sections: SectionConfig[],
+  registerId: string = DEFAULT_REGISTER_ID,
+  overrides?: Record<string, string>,
+): Record<string, string> {
+  const map: Record<string, string> = {};
+  for (const section of sections) {
+    const id = section['section-id'];
+    map[id] = overrides?.[id] ?? registerId;
+  }
+  return map;
+}
 
 export const dialogTableSection = loadSectionSchema(dialogTableSectionRaw);
 
@@ -72,3 +87,18 @@ export const themeSections = [
   scoresDisplaySection,
   loadSectionSchema(tableSectionRaw, { registerId: THEME_REGISTER_ID }),
 ];
+
+export const intakeFormSectionRegisterIds = buildSectionRegisterIds(intakeFormSections);
+export const registerSectionRegisterIds = buildSectionRegisterIds(registerSections);
+export const widgetExploreSectionRegisterIds = buildSectionRegisterIds(widgetExploreSections);
+export const themeSectionRegisterIds = buildSectionRegisterIds(themeSections, THEME_REGISTER_ID);
+
+/** Header + ID auth use the `registrant` store namespace; others use DEFAULT_REGISTER_ID. */
+export const specialSectionRegisterIds = buildSectionRegisterIds(
+  specialSections,
+  DEFAULT_REGISTER_ID,
+  {
+    'header-section': 'registrant',
+    [idAuthenticationSection['section-id']]: 'registrant',
+  },
+);

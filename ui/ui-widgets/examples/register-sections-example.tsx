@@ -7,7 +7,7 @@ import React, { useMemo } from 'react';
 import { createWidgetStore } from '../src/store';
 import { WidgetProvider, SectionsContainer } from '../src';
 import type { SectionChanges } from '../src/components/SectionRenderer';
-import { registerSections } from './shared/exampleSchemas';
+import { registerSections, registerSectionRegisterIds } from './shared/exampleSchemas';
 import { recordSampleSchemaData } from './shared/exampleData';
 import { createExampleDataSourceHandler } from './shared/mockDataSourceHandler';
 
@@ -36,6 +36,7 @@ export const RegisterSectionsExample = () => {
 
         <SectionsContainer
           sections={registerSections}
+          sectionRegisterIds={registerSectionRegisterIds}
           schemaData={recordSampleSchemaData}
           mode="RegistryView"
           onSectionSave={handleSectionSave}

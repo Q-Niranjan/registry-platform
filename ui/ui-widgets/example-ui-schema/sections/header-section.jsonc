@@ -14,18 +14,18 @@
           "widget-type": "group",
           "widget-id": "registry-header",
           "widget-data-path": {
-            "image": "register-id.record_image_storage_id",
-            "imageUrl": "register-id.record_image_url",
-            "name": "register-id.record_name",
-            "functionalId": "register-id.functional_record_id",
-            "status": "register-id.record_status",
-            "statusReason": "register-id.record_status_reason",
-            "completionScore": "register-id.completion_score",
-            "idealScore": "register-id.ideal_score",
-            "createdBy": "register-id.created_by",
-            "createdAt": "register-id.created_at",
-            "lastApprovedBy": "register-id.last_approved_by",
-            "lastApprovedAt": "register-id.last_approved_at"
+            "image": "record_image_storage_id",
+            "imageUrl": "record_image_url",
+            "name": "record_name",
+            "functionalId": "functional_record_id",
+            "status": "record_status",
+            "statusReason": "record_status_reason",
+            "completionScore": "completion_score",
+            "idealScore": "ideal_score",
+            "createdBy": "created_by",
+            "createdAt": "created_at",
+            "lastApprovedBy": "last_approved_by",
+            "lastApprovedAt": "last_approved_at"
           },
           "widget-field-config": {
             "status": {

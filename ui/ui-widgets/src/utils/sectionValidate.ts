@@ -6,6 +6,7 @@ import {
   BaseWidgetConfig,
 } from '../types';
 import { shouldShowWidget, shouldEnableWidget, shouldRequireWidget } from './conditions';
+import { buildScopeResolver } from '../context/SectionScopeContext';
 import { getValueByPath, getWidgetValue } from './pathUtils';
 import { validateWidget } from './validation';
 import { isTableLikeWidget } from './extractTableRecordsFromSnapshot';
@@ -24,14 +25,24 @@ const validateTableLikeWidget = (
   currentSchemaData: Record<string, any>,
   dispatch: WidgetDispatch,
   skipRequired: boolean,
+  resolvePath?: (path: string) => string,
 ): boolean => {
   const widgetId = widget['widget-id'];
   if (!widgetId) return true;
 
   const columns = (widget['widget-data-columns'] || []) as Record<string, unknown>[];
+  const resolvedPath = resolvePath && widget['widget-data-path']
+    ? (typeof widget['widget-data-path'] === 'string'
+        ? resolvePath(widget['widget-data-path'])
+        : Object.fromEntries(
+            Object.entries(widget['widget-data-path'] as Record<string, string>).map(
+              ([k, v]) => [k, resolvePath(v)],
+            ),
+          ))
+    : widget['widget-data-path'];
   const value = getWidgetValue(
     currentSchemaData,
-    widget['widget-data-path'],
+    resolvedPath,
     widgetId,
   );
   const rows: Record<string, unknown>[] = Array.isArray(value)
@@ -115,13 +126,17 @@ export const collectWidgets = (panels: PanelConfig[]): BaseWidgetConfig[] => {
 /**
  * @param skipRequired - Skip required checks for per-section Save/Next navigation;
  *   format and range validation still run.
+ * @param sectionRegisterId - When provided, resolves schema-relative widget-data-path
+ *   values to their absolute store keys (section-scoped path mode).
  */
 export const sectionValidate = (
   section: SectionConfig,
   currentSchemaData: Record<string, any>,
   dispatch: WidgetDispatch,
   skipRequired: boolean = false,
+  sectionRegisterId?: string,
 ): boolean => {
+  const resolvePath = buildScopeResolver(sectionRegisterId);
   const allWidgets = collectWidgets(section.panels);
 
   let isValid = true;
@@ -129,7 +144,8 @@ export const sectionValidate = (
   for (const widget of allWidgets) {
     const isVisible = shouldShowWidget(
       widget['widget-data-options'],
-      currentSchemaData
+      currentSchemaData,
+      resolvePath,
     );
 
     if (!isVisible) continue;
@@ -137,6 +153,7 @@ export const sectionValidate = (
     const isEnabled = shouldEnableWidget(
       widget['widget-data-options'],
       currentSchemaData,
+      resolvePath,
     );
 
     if (!isEnabled) continue;
@@ -149,6 +166,7 @@ export const sectionValidate = (
         currentSchemaData,
         dispatch,
         skipRequired,
+        resolvePath,
       );
       if (!tableValid) {
         isValid = false;
@@ -156,9 +174,18 @@ export const sectionValidate = (
       continue;
     }
 
+    const resolvedWidgetPath = resolvePath && widget['widget-data-path']
+      ? (typeof widget['widget-data-path'] === 'string'
+          ? resolvePath(widget['widget-data-path'])
+          : Object.fromEntries(
+              Object.entries(widget['widget-data-path'] as Record<string, string>).map(
+                ([k, v]) => [k, resolvePath(v)],
+              ),
+            ))
+      : widget['widget-data-path'];
     const value = getWidgetValue(
       currentSchemaData,
-      widget['widget-data-path'],
+      resolvedWidgetPath,
       widgetId
     );
 
@@ -166,6 +193,7 @@ export const sectionValidate = (
       widget['widget-data-options'],
       currentSchemaData,
       widget['widget-required'] ?? false,
+      resolvePath,
     );
 
     const errors = validateWidget(
@@ -189,9 +217,12 @@ export const sectionValidate = (
     const widgetId = `supporting-doc-${section['section-id']}-${index}`;
 
     if (!skipRequired && doc['document-required']) {
+      const docPath = resolvePath
+        ? resolvePath(doc['document-data-path'])
+        : doc['document-data-path'];
       const file = getValueByPath(
         currentSchemaData,
-        doc['document-data-path']
+        docPath,
       );
 
       if (!file) {

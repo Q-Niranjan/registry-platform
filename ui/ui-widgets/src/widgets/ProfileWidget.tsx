@@ -4,6 +4,7 @@ import { BaseWidgetConfig } from '../types';
 import { WidgetRootState } from '../store';
 import { useWidgetContext } from '../components/WidgetProvider';
 import { getValueByPath } from '../utils/pathUtils';
+import { useSectionScope } from '../context/SectionScopeContext';
 import { dummyProfile } from '../assets';
 
 interface ProfileWidgetProps {
@@ -17,6 +18,7 @@ export const ProfileWidget = ({ config }: ProfileWidgetProps) => {
   } = useBaseWidget({ config });
 
   const { schemaData, t } = useWidgetContext();
+  const scope = useSectionScope();
 
   const values = useSelector((state: WidgetRootState) => state.widget.values);
 
@@ -30,9 +32,12 @@ export const ProfileWidget = ({ config }: ProfileWidgetProps) => {
   const idPath = (widgetConfig as any)['widget-id-path'];
 
   if (dataPath && typeof dataPath === 'object') {
-    const imagePathValue = dataPath.image || dataPath.photo || dataPath.avatar;
-    const namePathValue = dataPath.name || dataPath.displayName;
-    const idPathValue = dataPath.id || dataPath.identifier;
+    const resolvedPaths = (scope
+      ? scope.resolveDataPath(dataPath as Record<string, string>)
+      : dataPath) as Record<string, string>;
+    const imagePathValue = resolvedPaths.image || resolvedPaths.photo || resolvedPaths.avatar;
+    const namePathValue = resolvedPaths.name || resolvedPaths.displayName;
+    const idPathValue = resolvedPaths.id || resolvedPaths.identifier;
 
     const findValueInNestedObjects = (path: string, searchIn: Record<string, any> | undefined): any => {
       if (!searchIn) return undefined;

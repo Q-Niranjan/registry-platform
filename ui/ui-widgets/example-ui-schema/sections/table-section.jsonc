@@ -15,7 +15,7 @@
           "widget-id": "table_records",
           "widget-label": "Records",
           "widget-column-span": 3,
-          "widget-data-path": "register-id.table_records",
+          "widget-data-path": "table_records",
           "widget-data-operations": { "add": true, "remove": true, "edit": true },
           "widget-data-columns": [
             {

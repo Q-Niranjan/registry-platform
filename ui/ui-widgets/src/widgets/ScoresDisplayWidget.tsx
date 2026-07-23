@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { BaseWidgetConfig } from '../types';
 import { useWidgetContext } from '../components/WidgetProvider';
+import { useSectionScope } from '../context/SectionScopeContext';
 import { tSchema } from '../utils/tSchema';
 import { WidgetRootState } from '../store';
 import { getValueByPath } from '../utils/pathUtils';
@@ -64,6 +65,7 @@ export const ScoresDisplayWidget = ({
   schemaData: propSchemaData,
 }: ScoresDisplayWidgetProps) => {
   const { schemaData: ctxSchemaData, t } = useWidgetContext();
+  const scope = useSectionScope();
   const schemaData = (propSchemaData || ctxSchemaData || {}) as Record<string, unknown>;
   const values = useSelector((state: WidgetRootState) => state.widget.values);
 
@@ -72,6 +74,7 @@ export const ScoresDisplayWidget = ({
   const rawScores = useMemo((): unknown => {
     if (!dataPath || typeof dataPath !== 'string') return undefined;
     const valuesObj = values as unknown as Record<string, unknown>;
+    const resolvedPath = scope ? scope.toStorePath(dataPath) : dataPath;
 
     const tryResolve = (path: string): unknown => {
       const fromValues = getValueByPathOrKey(valuesObj, path);
@@ -79,9 +82,8 @@ export const ScoresDisplayWidget = ({
       return getValueByPathOrKey(schemaData, path);
     };
 
-    const direct = tryResolve(dataPath);
-    return direct;
-  }, [dataPath, values, schemaData]);
+    return tryResolve(resolvedPath);
+  }, [dataPath, values, schemaData, scope]);
 
   const scores = useMemo((): ScoreRecord[] => {
     if (!rawScores) return [];

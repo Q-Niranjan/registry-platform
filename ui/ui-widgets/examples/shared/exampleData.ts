@@ -154,13 +154,13 @@ const sampleGeoHierarchy = {
   },
 };
 
-/** Nested shape so getValueByPath can resolve register-id.field paths. */
+/** Nested shape: section data keyed by section_register_id for the global store. */
 export const recordSampleSchemaData: Record<string, unknown> = {
-  scores: sampleScores,
   [DEFAULT_REGISTER_ID]: {
     ...baseRecordFields,
     ...sampleGeoHierarchy,
     supporting_documents: sampleSupportingDocuments,
+    scores: sampleScores,
   },
 };
 
@@ -213,11 +213,11 @@ export const dialogTableSchemaData: Record<string, unknown> = {
 
 /** Combined data for all special sections in one RegistryView */
 export const specialSectionsSchemaData: Record<string, unknown> = {
-  scores: sampleScores,
   registrant: registrantRecord,
   [DEFAULT_REGISTER_ID]: {
     link_internal_record_id: 'rec-002',
     records: householdMembers,
+    scores: sampleScores,
   },
 };
 
@@ -251,15 +251,15 @@ export const widgetExploreSampleData: Record<string, unknown> = {
 };
 
 export const themeSampleData = (registerId: string): Record<string, unknown> => ({
-  scores: [
-    {
-      score_type: 'PMT',
-      computed_score: 41,
-      computed_at: '2026-01-15T10:00:00Z',
-      triggered_by_cr_id: 'CR-2026-004830',
-    },
-  ],
   [registerId]: {
+    scores: [
+      {
+        score_type: 'PMT',
+        computed_score: 41,
+        computed_at: '2026-01-15T10:00:00Z',
+        triggered_by_cr_id: 'CR-2026-004830',
+      },
+    ],
     record_name: 'Helen Tadesse',
     functional_record_id: '1048291056732',
     record_image_storage_id: '',

@@ -6,7 +6,7 @@ import React, { useMemo } from 'react';
 import { createWidgetStore } from '../src/store';
 import { WidgetProvider, SectionsContainer } from '../src';
 import type { SectionChanges } from '../src/components/SectionRenderer';
-import { widgetExploreSections } from './shared/exampleSchemas';
+import { widgetExploreSections, widgetExploreSectionRegisterIds } from './shared/exampleSchemas';
 import { widgetExploreSampleData } from './shared/exampleData';
 
 export const WidgetsExample = () => {
@@ -33,6 +33,7 @@ export const WidgetsExample = () => {
 
         <SectionsContainer
           sections={widgetExploreSections}
+          sectionRegisterIds={widgetExploreSectionRegisterIds}
           schemaData={widgetExploreSampleData}
           mode="RegistryView"
           onSectionSave={handleSectionSave}

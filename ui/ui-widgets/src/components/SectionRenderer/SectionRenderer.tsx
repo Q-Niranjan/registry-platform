@@ -6,6 +6,7 @@ import { useWidgetContext } from '../WidgetProvider';
 import { WidgetRootState } from '../../store';
 import { collectWidgets } from '../../utils/sectionValidate';
 import { SectionRendererProps } from './types';
+import { SectionScopeProvider } from '../../context/SectionScopeContext';
 import {
   resolveSectionColumnSpan,
   buildReadonlyStyleSelectors,
@@ -159,7 +160,7 @@ export const SectionRenderer = ({
     markIntakeFormSavedWithoutData,
   });
 
-  return (
+  const inner = (
     <>
       <EditSectionPortal
         mode={mode}
@@ -264,4 +265,10 @@ export const SectionRenderer = ({
       </div>
     </>
   );
+
+  return sectionRegisterId ? (
+    <SectionScopeProvider sectionRegisterId={sectionRegisterId}>
+      {inner}
+    </SectionScopeProvider>
+  ) : inner;
 };

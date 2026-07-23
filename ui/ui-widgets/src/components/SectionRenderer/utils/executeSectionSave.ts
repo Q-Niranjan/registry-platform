@@ -1,6 +1,7 @@
 import { Dispatch } from '@reduxjs/toolkit';
 import { SectionConfig } from '../../../types';
 import { getValueByPath } from '../../../utils/pathUtils';
+import { buildScopeResolver } from '../../../context/SectionScopeContext';
 import { sectionValidate, collectWidgets } from '../../../utils/sectionValidate';
 import {
   deserializeFile,
@@ -31,7 +32,9 @@ export interface ExecuteSectionSaveResult {
 const collectDocsWidgetFiles = (
   panels: SectionConfig['panels'],
   sourceData: Record<string, unknown>,
+  sectionRegisterId?: string,
 ): unknown[] => {
+  const toStorePath = buildScopeResolver(sectionRegisterId);
   const files: unknown[] = [];
   const docsWidgets = collectWidgets(panels).filter((w) => w.widget === 'docs');
 
@@ -39,7 +42,8 @@ const collectDocsWidgetFiles = (
     const widgetPath = widget['widget-data-path'];
     if (!widgetPath || typeof widgetPath !== 'string') return;
 
-    const docsValue = getValueByPath(sourceData, widgetPath);
+    const storePath = toStorePath ? toStorePath(widgetPath) : widgetPath;
+    const docsValue = getValueByPath(sourceData, storePath);
     if (!docsValue || typeof docsValue !== 'object' || Array.isArray(docsValue)) return;
 
     const documents: Array<{ 'document-key': string; 'document-label'?: string }> =
@@ -61,10 +65,14 @@ const collectDocsWidgetFiles = (
  * Strip the base-64 blobs of freshly-uploaded `docs` files from the save
  * records (they travel in `SectionChanges.files` instead) while preserving
  * already-uploaded documents that are stored as view-URL strings.
+ *
+ * @param sectionRegisterId When provided (scoped mode), schema-relative paths are
+ *   used as field keys as-is. Legacy mode strips the UUID prefix segment.
  */
 const stripDocsWidgetFields = (
   records: unknown[],
   panels: SectionConfig['panels'],
+  sectionRegisterId?: string,
 ): unknown[] => {
   const docsWidgets = collectWidgets(panels).filter((w) => w.widget === 'docs');
   if (docsWidgets.length === 0) return records;
@@ -73,7 +81,11 @@ const stripDocsWidgetFields = (
     .map((w) => {
       const path = w['widget-data-path'];
       if (!path || typeof path !== 'string') return null;
-      return path.includes('.') ? path.split('.').slice(1).join('.') : path;
+      // Scoped mode: path is already a field-relative name (no UUID prefix to strip).
+      // Legacy mode: strip the first path segment (UUID prefix).
+      return sectionRegisterId
+        ? path
+        : path.includes('.') ? path.split('.').slice(1).join('.') : path;
     })
     .filter((k): k is string => k !== null);
 
@@ -150,7 +162,7 @@ export const executeSectionSave = async ({
   }).widget;
   let currentSchemaData = currentState.values || {};
 
-  const isSectionValid = sectionValidate(section, currentSchemaData, dispatch, true);
+  const isSectionValid = sectionValidate(section, currentSchemaData, dispatch, true, sectionRegisterId);
   if (!isSectionValid) {
     return { validated: false, saved: false, currentSchemaData };
   }
@@ -162,16 +174,20 @@ export const executeSectionSave = async ({
     sectionRegisterId,
   );
 
+  const toStorePath = buildScopeResolver(sectionRegisterId);
   const sectionFiles: unknown[] = [];
   if (hasSupportingDocuments) {
     const supportingDocuments = section['section-supporting-documents'] || [];
     supportingDocuments.forEach((doc) => {
-      sectionFiles.push(getValueByPath(currentSchemaData, doc['document-data-path']));
+      const docStorePath = toStorePath
+        ? toStorePath(doc['document-data-path'])
+        : doc['document-data-path'];
+      sectionFiles.push(getValueByPath(currentSchemaData, docStorePath));
     });
   }
 
   // Collect files from any docs widgets and add them to the save payload.
-  const docsFiles = collectDocsWidgetFiles(section.panels, currentSchemaData);
+  const docsFiles = collectDocsWidgetFiles(section.panels, currentSchemaData, sectionRegisterId);
   sectionFiles.push(...docsFiles);
 
   if (JSON.stringify(oldSchemaData) === JSON.stringify(newSchemaData)) {
@@ -180,7 +196,7 @@ export const executeSectionSave = async ({
 
   const { records: recordsWithImage, profileImage } = extractProfileImage([...newSchemaData]);
   // Strip the docs blob objects from records — they travel in `files` instead.
-  const records = stripDocsWidgetFields(recordsWithImage, section.panels);
+  const records = stripDocsWidgetFields(recordsWithImage, section.panels, sectionRegisterId);
 
   try {
     await onSectionSave?.({

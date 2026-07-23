@@ -1,5 +1,6 @@
 import { BaseWidgetConfig, SectionConfig } from '../../../types';
 import { getValueByPath } from '../../../utils/pathUtils';
+import { buildScopeResolver } from '../../../context/SectionScopeContext';
 import { collectWidgets } from '../../../utils/sectionValidate';
 import {
   extractTableRecordsFromSnapshot,
@@ -19,7 +20,9 @@ export interface BuildSectionRecordsOptions {
 const collectWidgetPathSnapshot = (
   widgets: BaseWidgetConfig[],
   sourceData: Record<string, unknown>,
+  sectionRegisterId?: string,
 ): { snapshot: Record<string, unknown>; hasTable: boolean } => {
+  const toStorePath = buildScopeResolver(sectionRegisterId);
   const snapshot: Record<string, unknown> = {};
   let hasTable = false;
 
@@ -34,11 +37,13 @@ const collectWidgetPathSnapshot = (
     if (typeof widgetPath === 'object') {
       Object.values(widgetPath).forEach((path: unknown) => {
         if (typeof path === 'string' && path.length > 0) {
-          snapshot[path] = getValueByPath(sourceData, path);
+          const storePath = toStorePath ? toStorePath(path) : path;
+          snapshot[path] = getValueByPath(sourceData, storePath);
         }
       });
     } else if (typeof widgetPath === 'string') {
-      snapshot[widgetPath] = getValueByPath(sourceData, widgetPath);
+      const storePath = toStorePath ? toStorePath(widgetPath) : widgetPath;
+      snapshot[widgetPath] = getValueByPath(sourceData, storePath);
     }
   });
 
@@ -48,8 +53,9 @@ const collectWidgetPathSnapshot = (
 const buildRawSnapshotRecord = (
   widgets: BaseWidgetConfig[],
   sourceData: Record<string, unknown>,
+  sectionRegisterId?: string,
 ): unknown[] => {
-  const { snapshot } = collectWidgetPathSnapshot(widgets, sourceData);
+  const { snapshot } = collectWidgetPathSnapshot(widgets, sourceData, sectionRegisterId);
   return [{ ...snapshot }];
 };
 
@@ -64,7 +70,7 @@ export const buildSectionRecords = (
 ): unknown[] => {
   if (!widgets.length) {
     if (whenEmpty === 'empty-array') return [];
-    if (whenEmpty === 'raw-snapshot') return buildRawSnapshotRecord(widgets, sourceData);
+    if (whenEmpty === 'raw-snapshot') return buildRawSnapshotRecord(widgets, sourceData, sectionRegisterId);
     const sectionData = sectionRegisterId
       ? (sourceData[sectionRegisterId] as Record<string, unknown> | undefined) ?? {}
       : {};
@@ -76,14 +82,24 @@ export const buildSectionRecords = (
     ];
   }
 
-  const { snapshot, hasTable } = collectWidgetPathSnapshot(widgets, sourceData);
+  const { snapshot, hasTable } = collectWidgetPathSnapshot(widgets, sourceData, sectionRegisterId);
 
   if (!hasTable) {
+    /**
+     * Snapshot keys are schema paths:
+     * - Scoped (new): already relative field names (e.g. "prefix", "documents") — use as-is.
+     * - Legacy (old): UUID-prefixed strings (e.g. "uuid.prefix") — strip first segment.
+     *
+     * When sectionRegisterId is provided we are in scoped mode and keys are field-relative;
+     * no stripping is needed. Legacy behavior is preserved when sectionRegisterId is absent.
+     */
     const cleanedSnapshot: Record<string, unknown> = {};
-    Object.entries(snapshot).forEach(([fullPath, value]) => {
-      const fieldPath = fullPath.includes('.')
-        ? fullPath.split('.').slice(1).join('.')
-        : fullPath;
+    Object.entries(snapshot).forEach(([schemaPath, value]) => {
+      const fieldPath = sectionRegisterId
+        ? schemaPath
+        : schemaPath.includes('.')
+          ? schemaPath.split('.').slice(1).join('.')
+          : schemaPath;
       cleanedSnapshot[fieldPath] = value;
     });
 
@@ -110,13 +126,16 @@ export const buildSectionRecords = (
 export const collectSectionSupportingFiles = (
   section: SectionConfig,
   sourceData: Record<string, unknown>,
+  sectionRegisterId?: string,
 ): unknown[] => {
+  const toStorePath = buildScopeResolver(sectionRegisterId);
   const files: unknown[] = [];
   const supportingDocuments = section['section-supporting-documents'] || [];
   supportingDocuments.forEach((doc) => {
     const path = doc['document-data-path'];
     if (path) {
-      files.push(getValueByPath(sourceData, path));
+      const storePath = toStorePath ? toStorePath(path) : path;
+      files.push(getValueByPath(sourceData, storePath));
     }
   });
   return files;
@@ -151,11 +170,12 @@ export const buildSectionSnapshot = (
           whenEmpty: 'empty-array',
         })
       : buildSectionRecords(sectionWidgets, sourceData, {
+          sectionRegisterId,
           whenEmpty: 'raw-snapshot',
         });
 
   const files = hasSupportingDocuments
-    ? collectSectionSupportingFiles(section, sourceData)
+    ? collectSectionSupportingFiles(section, sourceData, sectionRegisterId)
     : [];
 
   return { records, files };
@@ -176,7 +196,7 @@ export function buildSectionChanges(
     whenEmpty: 'single-record',
   });
 
-  const files = collectSectionSupportingFiles(section, storeValues);
+  const files = collectSectionSupportingFiles(section, storeValues, sectionRegisterId);
 
   return {
     section_id: options?.dbSectionId ?? section['section-id'],

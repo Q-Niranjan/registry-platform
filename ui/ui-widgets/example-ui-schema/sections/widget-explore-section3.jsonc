@@ -17,7 +17,7 @@
               "widget-type": "input",
               "widget-id": "description",
               "widget-label": "Textarea",
-              "widget-data-path": "register-id.description",
+              "widget-data-path": "description",
               "widget-data-format": {
                 "rows": 4,
                 "characterType": "any",

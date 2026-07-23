@@ -10,6 +10,8 @@ import { useTranslations } from 'next-intl';
 
 interface Props {
   sectionsConfig: any[];
+  /** Map of section-id → section_register_id for relative path scoping. */
+  sectionRegisterIds: Record<string, string>;
   schemaData: any;
   showActions: boolean;
   onSectionSave: (sectionChanges: SectionChanges) => void;
@@ -22,6 +24,7 @@ interface Props {
 
 export default function IntakeFormSections({
   sectionsConfig,
+  sectionRegisterIds,
   schemaData,
   showActions,
   onSectionSave,
@@ -43,6 +46,7 @@ export default function IntakeFormSections({
       <div className="flex flex-col gap-1">
         <SectionsContainer
           sections={sectionsConfig}
+          sectionRegisterIds={sectionRegisterIds}
           mode="IntakeForm"
           isDraft={showActions}
           onSectionSave={onSectionSave}

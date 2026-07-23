@@ -17,14 +17,14 @@
               "widget-type": "input",
               "widget-id": "is_married",
               "widget-label": "Boolean",
-              "widget-data-path": "register-id.is_married"
+              "widget-data-path": "is_married"
             },
             {
               "widget": "checkbox",
               "widget-type": "input",
               "widget-id": "consent",
               "widget-label": "Checkbox",
-              "widget-data-path": "register-id.consent",
+              "widget-data-path": "consent",
               "widget-data-default": false
             }
           ]
@@ -38,21 +38,21 @@
               "widget-type": "input",
               "widget-id": "date_of_birth",
               "widget-label": "Date",
-              "widget-data-path": "register-id.date_of_birth"
+              "widget-data-path": "date_of_birth"
             },
             {
               "widget": "datetime",
               "widget-type": "input",
               "widget-id": "appointment_time",
               "widget-label": "Datetime",
-              "widget-data-path": "register-id.appointment_time"
+              "widget-data-path": "appointment_time"
             },
             {
               "widget": "display",
               "widget-type": "input",
               "widget-id": "functional_id",
               "widget-label": "Display",
-              "widget-data-path": "register-id.functional_id",
+              "widget-data-path": "functional_id",
               "widget-readonly": true
             }
           ]
@@ -66,21 +66,21 @@
               "widget-type": "input",
               "widget-id": "document",
               "widget-label": "File",
-              "widget-data-path": "register-id.document"
+              "widget-data-path": "document"
             },
             {
               "widget": "number",
               "widget-type": "input",
               "widget-id": "amount",
               "widget-label": "Number",
-              "widget-data-path": "register-id.amount"
+              "widget-data-path": "amount"
             },
             {
               "widget": "phone",
               "widget-type": "input",
               "widget-id": "phone",
               "widget-label": "Phone",
-              "widget-data-path": "register-id.phone"
+              "widget-data-path": "phone"
             }
           ]
         }

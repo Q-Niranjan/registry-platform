@@ -12,6 +12,8 @@ export { useWidgetCascade } from './hooks/useWidgetCascade';
 
 export { WidgetRenderer } from './components/WidgetRenderer';
 export { WidgetProvider, useWidgetContext } from './components/WidgetProvider';
+export { SectionScopeProvider, useSectionScope, buildScopeResolver } from './context/SectionScopeContext';
+export type { SectionScope, DataPath } from './context/SectionScopeContext';
 export { PanelRenderer } from './components/PanelRenderer';
 export { SectionRenderer } from './components/SectionRenderer';
 export type { SectionChanges, SectionRendererProps } from './components/SectionRenderer';

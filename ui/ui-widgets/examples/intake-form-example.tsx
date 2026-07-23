@@ -10,7 +10,7 @@ import { createWidgetStore } from '../src/store';
 import { WidgetProvider, SectionsContainer } from '../src';
 import type { SectionChanges } from '../src/components/SectionRenderer';
 import type { SectionsFormHandle } from '../src/components/SectionsContainer';
-import { intakeFormSections } from './shared/exampleSchemas';
+import { intakeFormSections, intakeFormSectionRegisterIds } from './shared/exampleSchemas';
 import { recordSampleSchemaData } from './shared/exampleData';
 import { createExampleDataSourceHandler } from './shared/mockDataSourceHandler';
 
@@ -63,6 +63,7 @@ export const IntakeFormExample = () => {
 
         <SectionsContainer
           sections={intakeFormSections}
+          sectionRegisterIds={intakeFormSectionRegisterIds}
           mode="IntakeForm"
           isDraft={showActions}
           onSectionSave={handleSectionSave}

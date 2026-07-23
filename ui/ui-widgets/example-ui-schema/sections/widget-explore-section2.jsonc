@@ -18,9 +18,9 @@
               "widget-id": "user_profile",
               "widget-label": "Profile",
               "widget-data-path": {
-                "image": "register-id.photo",
-                "name": "register-id.display_name",
-                "id": "register-id.national_id"
+                "image": "photo",
+                "name": "display_name",
+                "id": "national_id"
               }
             }
           ]
@@ -34,7 +34,7 @@
               "widget-type": "input",
               "widget-id": "programs",
               "widget-label": "Multi-select",
-              "widget-data-path": "register-id.programs",
+              "widget-data-path": "programs",
               "widget-data-source": {
                 "type": "static",
                 "options": [
@@ -54,7 +54,7 @@
               "widget-type": "input",
               "widget-id": "gender",
               "widget-label": "Radio",
-              "widget-data-path": "register-id.gender",
+              "widget-data-path": "gender",
               "widget-data-source": {
                 "type": "static",
                 "options": [
@@ -68,7 +68,7 @@
               "widget-type": "input",
               "widget-id": "country",
               "widget-label": "Select",
-              "widget-data-path": "register-id.country",
+              "widget-data-path": "country",
               "widget-data-source": {
                 "type": "static",
                 "options": [
@@ -82,7 +82,7 @@
               "widget-type": "input",
               "widget-id": "full_name",
               "widget-label": "Text",
-              "widget-data-path": "register-id.full_name"
+              "widget-data-path": "full_name"
             }
           ]
         }

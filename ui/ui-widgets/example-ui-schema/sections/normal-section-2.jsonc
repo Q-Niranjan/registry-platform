@@ -16,7 +16,7 @@
               "widget-id": "disabled",
               "widget-type": "input",
               "widget-label": "Disabled",
-              "widget-data-path": "register-id.disabled",
+              "widget-data-path": "disabled",
               "widget-data-format": { "layout": "vertical", "sortOptions": false },
               "widget-data-source": {
                 "type": "static",
@@ -31,7 +31,7 @@
               "widget-id": "disability_type",
               "widget-type": "input",
               "widget-label": "Disability Type",
-              "widget-data-path": "register-id.disability_type",
+              "widget-data-path": "disability_type",
               "widget-data-source": {
                 "type": "static",
                 "options": [
@@ -49,7 +49,7 @@
               "widget-id": "disability_severity",
               "widget-type": "input",
               "widget-label": "Disability Severity",
-              "widget-data-path": "register-id.disability_severity",
+              "widget-data-path": "disability_severity",
               "widget-data-source": {
                 "type": "static",
                 "options": [
@@ -71,7 +71,7 @@
               "widget-id": "source_of_income",
               "widget-type": "input",
               "widget-label": "Source of Income",
-              "widget-data-path": "register-id.source_of_income",
+              "widget-data-path": "source_of_income",
               "widget-required": true,
               "widget-data-source": {
                 "type": "static",

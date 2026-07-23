@@ -18,6 +18,11 @@ export interface SectionsFormHandle {
 
 export interface SectionsContainerProps {
   sections: SectionConfig[];
+  /**
+   * Map of `section-id` → runtime `section_register_id`.
+   * Required for relative widget-data-path resolution.
+   */
+  sectionRegisterIds?: Record<string, string>;
   dataSourceRequestHandler?: DataSourceRequestHandler;
   schemaData?: UseBaseWidgetOptions['schemaData'];
   onValueChange?: UseBaseWidgetOptions['onValueChange'];
@@ -37,6 +42,7 @@ import {
 } from './SectionRenderer/utils/panelLayout';
 export const SectionsContainer = ({
   sections,
+  sectionRegisterIds,
   dataSourceRequestHandler: propDataSourceRequestHandler,
   schemaData,
   onValueChange,
@@ -53,6 +59,11 @@ export const SectionsContainer = ({
 
   const { dataSourceRequestHandler: contextDataSourceRequestHandler } = useWidgetContext();
   const dataSourceRequestHandler = propDataSourceRequestHandler || contextDataSourceRequestHandler;
+
+  const resolveSectionRegisterId = useCallback(
+    (section: SectionConfig) => sectionRegisterIds?.[section['section-id']],
+    [sectionRegisterIds],
+  );
 
   const [expandedSectionIndex, setExpandedSectionIndex] = useState<number | null>(0);
   const [maxVisitedIndex, setMaxVisitedIndex] = useState<number>(-1);
@@ -128,7 +139,13 @@ export const SectionsContainer = ({
         let firstInvalidIndex: number | null = null;
         for (let i = 0; i < safeSections.length; i++) {
           const section = safeSections[i];
-          const valid = sectionValidate(section, values, dispatch);
+          const valid = sectionValidate(
+            section,
+            values,
+            dispatch,
+            false,
+            resolveSectionRegisterId(section),
+          );
           if (!valid) {
             if (firstInvalidIndex === null) firstInvalidIndex = i;
             allValid = false;
@@ -147,11 +164,14 @@ export const SectionsContainer = ({
         let firstInvalidIndex: number | null = null;
         for (let i = 0; i < safeSections.length; i++) {
           const section = safeSections[i];
-          const valid = sectionValidate(section, values, dispatch);
+          const sectionRegId = resolveSectionRegisterId(section);
+          const valid = sectionValidate(section, values, dispatch, false, sectionRegId);
           if (!valid) {
             if (firstInvalidIndex === null) firstInvalidIndex = i;
           } else {
-            results.push(buildSectionChanges(section, values));
+            results.push(buildSectionChanges(section, values, {
+              sectionRegisterId: sectionRegId,
+            }));
           }
         }
         if (firstInvalidIndex !== null) {
@@ -167,12 +187,14 @@ export const SectionsContainer = ({
         const results: SectionChanges[] = [];
         for (let i = 0; i < safeSections.length; i++) {
           const section = safeSections[i];
-          results.push(buildSectionChanges(section, values));
+          results.push(buildSectionChanges(section, values, {
+            sectionRegisterId: resolveSectionRegisterId(section),
+          }));
         }
         return results;
       },
     };
-  }, [store, dispatch, safeSections]);
+  }, [store, dispatch, safeSections, resolveSectionRegisterId]);
 
   useEffect(() => {
     if (onFormReady && safeSections.length > 0) {
@@ -270,6 +292,8 @@ export const SectionsContainer = ({
             }
             : {};
 
+          const sectionRegId = resolveSectionRegisterId(section);
+
           if (section['section-column-span']) {
             return (
               <SectionRenderer
@@ -283,6 +307,7 @@ export const SectionsContainer = ({
                 hideEditButton={hideEditForSection}
                 mode={mode}
                 onSectionDirtyChange={handleSectionDirtyChange}
+                sectionRegisterId={sectionRegId}
                 {...intakeFormProps}
                 {...registryViewEditProps}
               />
@@ -307,6 +332,7 @@ export const SectionsContainer = ({
               hideEditButton={hideEditForSection}
               mode={mode}
               onSectionDirtyChange={handleSectionDirtyChange}
+              sectionRegisterId={sectionRegId}
               {...intakeFormProps}
               {...registryViewEditProps}
             />

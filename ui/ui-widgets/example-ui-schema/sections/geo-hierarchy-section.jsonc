@@ -23,8 +23,8 @@
                 "columnSpan": 2
               },
               "widget-data-path": {
-                "value": "a0000000-0000-4000-8000-000000000001.geo_lowest_level_value_id",
-                "hierarchy": "a0000000-0000-4000-8000-000000000001.geo_code_hierarchy_json"
+                "value": "geo_lowest_level_value_id",
+                "hierarchy": "geo_code_hierarchy_json"
               },
               "widget-data-source": {
                 "type": "api",

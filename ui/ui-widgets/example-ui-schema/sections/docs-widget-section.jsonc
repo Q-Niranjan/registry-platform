@@ -12,7 +12,7 @@
           "widget-type": "input",
           "widget-id": "individual_docs",
           "widget-label": "Supporting Documents",
-          "widget-data-path": "a0000000-0000-4000-8000-000000000001s.documents",
+          "widget-data-path": "documents",
           "widget-total-docs": 9,
           "documents": [
             {

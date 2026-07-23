@@ -11,18 +11,12 @@ export function isTableLikeWidget(widget: BaseWidgetConfig): boolean {
   );
 }
 
-/**
- * Resolve `records` for section save payloads.
- * - Back-compat: path ending in `.records` (e.g. `regId.records`)
- * - Else: first array snapshot at a string `widget-data-path` on a table-like widget
- *   (e.g. `household.members` for dialog-table)
- */
 export function extractTableRecordsFromSnapshot(
   snapshot: Record<string, unknown>,
   sectionWidgets: BaseWidgetConfig[],
 ): unknown[] {
   const convention = Object.entries(snapshot).find(
-    ([key, value]) => key.endsWith('.records') && Array.isArray(value),
+    ([key, value]) => (key === 'records' || key.endsWith('.records')) && Array.isArray(value),
   );
   if (convention) {
     return convention[1] as unknown[];
