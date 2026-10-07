@@ -73,6 +73,19 @@ const sidebarOptions: SidebarOption[] = [
         iconUrl: '/images/config/menu_policy_configuration_08.png',
         path: '/configuration/awe-policy-config',
     },
+    {
+        id: 'page-customization',
+        label: 'page_customization',
+        iconUrl: '/images/config/config_icon.png',
+        path: '/configuration/page-customization/dashboard',
+        subOptions: [
+            {
+                id: 'page-customization-dashboard',
+                label: 'homepage',
+                path: '/configuration/page-customization/dashboard',
+            },
+        ],
+    },
 ];
 
 export default function ConfigSidebar({ activeOption }: { activeOption: string }) {

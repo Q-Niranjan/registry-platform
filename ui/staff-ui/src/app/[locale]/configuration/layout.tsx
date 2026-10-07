@@ -10,7 +10,7 @@ const SIDEBAR_OPTIONS: ConfigActiveOption[] = [
     'intake-forms', 'data-models', 'ingest-configurations', 'outgest-configurations',
     'ingest-key-paths', 'ingest-semantic-patterns', 'ingest-manage-subscription',
     'ingest-templates', 'outgest-topics', 'outgest-templates',
-    'awe-policy-config'
+    'awe-policy-config', 'page-customization', 'page-customization-dashboard',
 ];
 
 function getActiveOptionFromPathname(pathname: string | null): ConfigActiveOption {
@@ -38,6 +38,9 @@ function getActiveOptionFromPathname(pathname: string | null): ConfigActiveOptio
         if (parentSegment === 'outgest-configurations') {
             if (subSegment === 'topics') return 'outgest-topics';
             if (subSegment === 'templates') return 'outgest-templates';
+        }
+        if (parentSegment === 'page-customization') {
+            if (subSegment === 'dashboard') return 'page-customization-dashboard';
         }
     }
 
