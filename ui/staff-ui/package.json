@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@novu/js": "^3.11.0",
+    "@openg2p/dashboard-widgets": "file:../dashboard-widgets",
     "@openg2p/notification": "https://github.com/OpenG2P/notifications/raw/refs/heads/develop/client/openg2p-notification-0.1.0.tgz",
     "@openg2p/registry-widgets": "1.1.9-dev.17",
     "@reduxjs/toolkit": "^2.11.2",
@@ -40,7 +41,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "babel-plugin-react-compiler": "1.0.0",
-    "baseline-browser-mapping": "^2.10.23",
+    "baseline-browser-mapping": "^2.11.34",
     "eslint": "^9",
     "eslint-config-next": "16.0.6",
     "tailwindcss": "^4",

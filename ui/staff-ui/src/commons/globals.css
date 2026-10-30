@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "@openg2p/dashboard-widgets/styles.css";
+@import "@openg2p/dashboard-widgets/builder.css";
 @config "../../tailwind.config.mjs";
 @source "../../node_modules/@openg2p/registry-widgets/dist";
 @source "../../../ui-widgets/dist";

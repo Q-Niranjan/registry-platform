@@ -370,6 +370,7 @@
   "hierarchical": "Hierarchical",
   "hierarchical_drill_down_hint": "Click a value row to view child values",
   "home": "Home",
+  "homepage": "Homepage",
   "icon": "Icon",
   "idAuth": {
     "authenticate": "Authenticate",
@@ -532,6 +533,7 @@
   "outgest_templates": "Templates",
   "outgest_topics": "Topics",
   "outgoing_messages": "Outgoing Messages",
+  "page_customization": "Page Customization",
   "partner": "Partner",
   "partner_id": "Partner ID",
   "partner_name": "Partner Name",

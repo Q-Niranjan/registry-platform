@@ -1,0 +1,46 @@
+{
+  "name": "@openg2p/dashboard-widgets",
+  "version": "0.1.0-demo",
+  "description": "Config-driven staff homepage dashboard widgets",
+  "license": "MPL-2.0",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./styles.css": "./src/styles.css",
+    "./builder.css": "./src/builder/HomepageLayoutBuilder.css"
+  },
+  "files": [
+    "dist",
+    "src/styles.css",
+    "src/builder/HomepageLayoutBuilder.css"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist",
+    "prepack": "npm run build"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.0"
+  },
+  "keywords": [
+    "openg2p",
+    "dashboard",
+    "widgets"
+  ]
+}
